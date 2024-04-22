@@ -1,6 +1,12 @@
 import numpy as np
 
 def calculate_magnetic_field(Xd, Yd, Zd, phi, theta, strength, Xv, Yv, Zv, Xc, Yc, Zc, Nx, Ny, Nz):
+    
+    # Convert angles from degrees to radians
+    phi_rad = np.deg2rad(phi)
+    theta_rad = np.deg2rad(theta)
+    
+    
     # Constants
     mu_0 = 4 * np.pi * 1e-7
     epsilon = 1e-10 
@@ -8,9 +14,9 @@ def calculate_magnetic_field(Xd, Yd, Zd, phi, theta, strength, Xv, Yv, Zv, Xc, Y
     # Define dipole moment vector
     #m = np.array([np.cos(phi) * np.sin(theta), np.sin(phi) * np.sin(theta), np.cos(theta)])
     
-    dx = np.sin(theta) * np.cos(phi)
-    dy = np.sin(theta) * np.sin(phi)
-    dz = np.cos(theta)
+    dx = np.sin(theta_rad) * np.cos(phi_rad)
+    dy = np.sin(theta_rad) * np.sin(phi_rad)
+    dz = np.cos(theta_rad)
     
     # Normalize d to ensure unit length
     magnitude = np.sqrt(dx**2 + dy**2 + dz**2)
@@ -62,8 +68,8 @@ def calculate_magnetic_field(Xd, Yd, Zd, phi, theta, strength, Xv, Yv, Zv, Xc, Y
 
 # Example usage
 Xd, Yd, Zd = 0, 0, 0
-phi = np.pi/4
-theta = np.pi/6
+#phi = np.pi/4
+#theta = np.pi/6
 Xv, Yv, Zv = 0, 0, 0
 Xc, Yc, Zc = 10.0, 10.0, 10.0
 Nx, Ny, Nz = 10, 10 ,10
@@ -72,6 +78,8 @@ Nx, Ny, Nz = 10, 10 ,10
 #phi = float(input("Enter dipole orientation angle phi (relative to X-axis in XY-plane): "))
 #theta = float(input("Enter dipole orientation angle theta (relative to Z-axis): "))
 strength = float(input("Enter dipole strength (default 1.0): ") or 1.0)
+phi = float(input("Enter dipole orientation angle phi in degrees (0-360): "))
+theta = float(input("Enter dipole orientation angle theta in degrees (0-180): "))
 #Nx, Ny, Nz = [int(x) for x in input("Enter (Nx,Ny,Nz): ").split()]
 
 
