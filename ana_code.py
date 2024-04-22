@@ -1,14 +1,23 @@
 import numpy as np
 
-def calculate_magnetic_field(Xd, Yd, Zd, phi, theta, strength=1.0, Xv=None, Yv=None, Zv=None, Xc=None, Yc=None, Zc=None, Nx=None, Ny=None, Nz=None):
+def calculate_magnetic_field(Xd, Yd, Zd, phi, theta, strength, Xv, Yv, Zv, Xc, Yc, Zc, Nx, Ny, Nz):
     # Constants
     mu_0 = 4 * np.pi * 1e-7
+    epsilon = 1e-10 
     
     # Define dipole moment vector
-    m = np.array([np.cos(phi) * np.sin(theta), np.sin(phi) * np.sin(theta), np.cos(theta)])
-    Nx = 10
-    Ny = 10
-    Nz = 10
+    #m = np.array([np.cos(phi) * np.sin(theta), np.sin(phi) * np.sin(theta), np.cos(theta)])
+    
+    dx = np.sin(theta) * np.cos(phi)
+    dy = np.sin(theta) * np.sin(phi)
+    dz = np.cos(theta)
+    
+    # Normalize d to ensure unit length
+    magnitude = np.sqrt(dx**2 + dy**2 + dz**2)
+    d_normalized = np.array([dx, dy, dz]) / magnitude
+    
+    # Calculate magnetic moment m
+    m = strength * d_normalized
     
     # Initialize magnetic field tensor
     B = np.zeros((Nx, Ny, Nz, 3))
@@ -23,7 +32,8 @@ def calculate_magnetic_field(Xd, Yd, Zd, phi, theta, strength=1.0, Xv=None, Yv=N
                 R = np.array([Xi - Xd, Yj - Yd, Zk - Zd])
                 R_mag = np.linalg.norm(R)
                 
-                A = (mu_0 / (4*np.pi)) * (np.cross(m, R) / R_mag**3)
+                A = (mu_0 / (4*np.pi)) * (np.cross(m, R) / (R_mag**3 + epsilon) )
+                #A = (9.8696) * (np.cross(m, R) / R_mag**3)
                 
                 B[i,j,k] = np.gradient(A)
     
@@ -58,7 +68,14 @@ Xv, Yv, Zv = 0, 0, 0
 Xc, Yc, Zc = 10.0, 10.0, 10.0
 Nx, Ny, Nz = 10, 10 ,10
 
-result = calculate_magnetic_field(Xd,Yd,Zd ,phi ,theta ,Xv ,Yv ,Zv ,Xc ,Yc ,Zc ,Nx ,Ny ,Nz)
+#Xd, Yd, Zd = [float(x) for x in input("Enter dipole location (Xd, Yd, Zd): ").split()]
+#phi = float(input("Enter dipole orientation angle phi (relative to X-axis in XY-plane): "))
+#theta = float(input("Enter dipole orientation angle theta (relative to Z-axis): "))
+strength = float(input("Enter dipole strength (default 1.0): ") or 1.0)
+#Nx, Ny, Nz = [int(x) for x in input("Enter (Nx,Ny,Nz): ").split()]
+
+
+result = calculate_magnetic_field(Xd,Yd,Zd ,phi ,theta,strength, Xv ,Yv ,Zv ,Xc ,Yc ,Zc ,Nx ,Ny ,Nz)
 
 # Save result to a .csv file
 np.savetxt('magnetic_field_result.csv', result,
