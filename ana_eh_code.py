@@ -1,5 +1,22 @@
 import numpy as np
 
+def convert_deg_to_rad(degrees):
+    """Convert degrees to radians."""
+    return np.deg2rad(degrees)
+
+def calculate_dipole_moment(phi_rad, theta_rad, strength):
+    """Calculate the dipole moment vector."""
+    dx = np.sin(theta_rad) * np.cos(phi_rad)
+    dy = np.sin(theta_rad) * np.sin(phi_rad)
+    dz = np.cos(theta_rad)
+
+    # Normalize d to ensure unit length
+    magnitude = np.sqrt(dx**2 + dy**2 + dz**2)
+    d_normalized = np.array([dx, dy, dz]) / magnitude
+
+    # Calculate magnetic moment m
+    return strength * d_normalized
+
 def calculate_magnetic_field(Xd, Yd, Zd, phi_deg, theta_deg, strength, Xv, Yv, Zv, Xc, Yc, Zc, Nx, Ny, Nz):
     """
     Calculate the magnetic field at each point in a specified volume due to a point dipole.
@@ -25,25 +42,16 @@ def calculate_magnetic_field(Xd, Yd, Zd, phi_deg, theta_deg, strength, Xv, Yv, Z
         np.ndarray: Array containing magnetic field data at each point in the volume.
     """
     try:
-        # Convert angles from degrees to radians
-        phi_rad = np.deg2rad(phi_deg)
-        theta_rad = np.deg2rad(theta_deg)
+        # Convert angles from degrees to radians        
+        phi_rad = convert_deg_to_rad(phi_deg)
+        theta_rad = convert_deg_to_rad(theta_deg)
 
         # Constants
         mu_0 = 4 * np.pi * 1e-7
         epsilon = 1e-10 
-
-        # Define dipole moment vector
-        dx = np.sin(theta_rad) * np.cos(phi_rad)
-        dy = np.sin(theta_rad) * np.sin(phi_rad)
-        dz = np.cos(theta_rad)
-
-        # Normalize d to ensure unit length
-        magnitude = np.sqrt(dx**2 + dy**2 + dz**2)
-        d_normalized = np.array([dx, dy, dz]) / magnitude
-
-        # Calculate magnetic moment m
-        m = strength * d_normalized
+        
+        # Calculate dipole moment vector
+        m = calculate_dipole_moment(phi_rad, theta_rad, strength)
 
         # Initialize magnetic field tensor
         B = np.zeros((Nx, Ny, Nz, 3))
