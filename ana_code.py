@@ -88,5 +88,5 @@ result = calculate_magnetic_field(Xd,Yd,Zd ,phi ,theta,strength, Xv ,Yv ,Zv ,Xc 
 # Save result to a .csv file
 np.savetxt('magnetic_field_result.csv', result,
            delimiter=',',
-           header='i,j,k,Xi,Yj,Zk,Bx,i,Bx,j,Bx,k,Bmagnitude,' +
+           header='i,j,k,Xi,Yj,Zk,Bxi,Bxj,Bxk,Bmagnitude,' +
                   'Gradientx,Bgradienty,Bgradientz')
