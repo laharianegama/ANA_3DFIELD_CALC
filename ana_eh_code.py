@@ -54,20 +54,26 @@ def calculate_magnetic_field(Xd, Yd, Zd, phi_deg, theta_deg, strength, Xv, Yv, Z
         m = calculate_dipole_moment(phi_rad, theta_rad, strength)
 
         # Initialize magnetic field tensor
-        B = np.zeros((Nx, Ny, Nz, 3))
+        # Use float64 dtype can reduce rounding errors compared to single-precision float32.
+        B = np.zeros((Nx, Ny, Nz, 3),dtype=np.float64)
 
         # Calculate magnetic field at each point in the volume
         for i in range(Nx):
             for j in range(Ny):
                 for k in range(Nz):
-                    Xi = Xv - Xc/2 + i * Xc/Nx
-                    Yj = Yv - Yc/2 + j * Yc/Ny
-                    Zk = Zv - Zc/2 + k * Zc/Nz
+                    # Xi = Xv - Xc/2 + i * Xc/Nx
+                    # Yj = Yv - Yc/2 + j * Yc/Ny
+                    # Zk = Zv - Zc/2 + k * Zc/Nz
+                    Xi = round(Xv - Xc/2 + i * Xc/Nx, 5)  # Round Xi to 5 decimal places to reduce rounding error
+                    Yj = round(Yv - Yc/2 + j * Yc/Ny, 5)  # Round Yj to 5 decimal places
+                    Zk = round(Zv - Zc/2 + k * Zc/Nz, 5)  # Round Zk to 5 decimal places
 
+                    # Calculate the vector from dipole to current point
                     R = np.array([Xi - Xd, Yj - Yd, Zk - Zd])
                     R_mag = np.linalg.norm(R)
 
-                    A = (mu_0 / (4*np.pi)) * (np.cross(m, R) / (R_mag**3 + epsilon) )
+                    # Calculate magnetic field intensity at the current point
+                    A = (mu_0 / (4*np.pi)) * (np.cross(m, R) / (R_mag**3 + epsilon) ) #epsilon to avoid divide by zero error
                     B[i,j,k] = np.gradient(A)
 
         # Calculate magnitude of B and its gradient
@@ -87,6 +93,7 @@ def main():
         # Xc, Yc, Zc = 10.0, 10.0, 10.0
         # Nx, Ny, Nz = 10, 10 ,10
         
+        # User input for parameters
         Xd, Yd, Zd = map(float, input("Enter dipole location (Xd, Yd, Zd): ").split())
         Xv, Yv, Zv = map(float, input("Enter Center coordinates of the volume(Xv, Yv, Zv): ").split())
         Xc, Yc, Zc = map(float, input("Enter volume size along X, Y, Z axes (Xc, Yc, Zc): ").split())
@@ -105,9 +112,10 @@ def main():
 
         # Calculate magnetic field
         B, B_magnitude, gradient_B_magnitude = calculate_magnetic_field(Xd, Yd, Zd, phi, theta, strength, Xv, Yv, Zv, Xc, Yc, Zc, Nx, Ny, Nz)
-        print(B)
-        print(B_magnitude)
-        print(gradient_B_magnitude)
+        
+        #print(B)
+        #print(B_magnitude)
+        #print(gradient_B_magnitude)
 
         if B is not None:
             # Flatten the results for saving to CSV
@@ -129,8 +137,10 @@ def main():
 
             # Save result to a .csv file
             result_flat = result.reshape(-1, result.shape[-1])
-            np.savetxt('magnetic_field_result_modular_eh.csv', result_flat,
+            #The values are displayed in scientific notation with a high precision due to the default formatting used by np.savetxt
+            np.savetxt('magnetic_field_result.csv', result_flat,
                        delimiter=',',
+                       #fmt='%0.15f',  # Format values with 5 decimal places
                        header='i,j,k,Xi,Yj,Zk,Bxi,Bxj,Bxk,Bmagnitude,' +
                               'Gradientx,Bgradienty,Bgradientz')
     except ValueError as ve:
